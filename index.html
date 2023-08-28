@@ -1,0 +1,88 @@
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta http-equiv="X-UA-Compatible" content="ie=edge">
+    <title>Document</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+</head>
+<body>
+
+<form method="post" action="" enctype="multipart/form-data">
+    <button id="BotonAddColor" class="text-white bg-red-500 hover:text-black hover:bg-red-700 font-bold py-1 px-1 transition duration-500 rounded">Agregar Color</button>
+    <div class="container mx-auto grid grid-cols-1 gap-4 border">
+        <div id="div_color_0" class="grid grid-cols-1 gap-4">
+            <div class="grid grid-cols-2 gap-4">
+                <div>
+                    <input type="text" class="border py-1 px-1" name="colores[0][]" placeholder="Ingrese un color_0...">
+                </div>
+                <div class="grid grid-cols-1 gap-2">
+                    <button class="talles bg-black text-white rounded py-1 px-1 w-10" id="boton_talle_0">+</button>
+                    <input type="text" class="border py-1 px-1" name="colores[0][]" placeholder="Ingrese un talle_0_0" id="input_talle_0_0">
+                </div>
+            </div>
+        </div>
+    </div>
+    <input class="bg-blue-500 m-5 rounded p-2 hover:bg-blue-700 hover:cursor-auto" type="submit" value="enviar">
+</form>
+<script>
+	/*
+		La idea es poder agregar colores de un determinado producto, y que a la vez cada color de ese producto se le pueda agregar diferentes talles
+		por eso es que se van a ir agregando como biñetas separando colores de talles
+	*/
+
+
+    const AgregarColor = document.querySelector('#BotonAddColor'); // boton para agregar el div completo con el campo color, un boton y otro campo talle
+    var CantidadColores = 0; // contador de colores, esto es para tener un orden en los atributos name de los campos
+    var CantidadTalles = [0]; // este array es para tener un conteo de la cantidad de talles que van a haber por color
+    const BotonesTalles = []; // Esta es mi lista de los botones
+    BotonesTalles.push(document.getElementById('boton_talle_0')); // agrego el primer boton para poder agregar los talles
+    ActivarBotones();// agrego el evento listener y todo lo que conlleva esa funcion
+	
+    AgregarColor.addEventListener("click", function(event){// listener para agregar todo el div de colores
+        event.preventDefault();
+        Nodo = document.getElementById("div_color_"+CantidadColores);
+        CantidadColores ++;
+        CantidadTalles.push(0);
+        var newDiv = document.createElement("div");
+        newDiv.id = 'div_color_'+CantidadColores;
+        newDiv.className = 'grid grid-cols-1 gap-4';
+        newDiv.innerHTML = `
+            <div class=" grid grid-cols-2 gap-4">
+                <div>
+                    <input type="text" class="border py-1 px-1" name="colores[${CantidadColores}][]" placeholder="Ingrese un color_${CantidadColores}...">
+                </div>
+                <div class="grid grid-cols-1 gap-2">
+                    <button class="talles bg-black text-white rounded py-1 px-1 w-10" id="boton_talle_${CantidadColores}">+</button>
+                    <input type="text" class="border py-1 px-1" name="colores[${CantidadColores}][]" placeholder="Ingrese un talle_${CantidadColores}_${CantidadTalles[CantidadColores]}" id="input_talle_${CantidadColores}_${CantidadTalles[CantidadColores]}">
+                </div>
+            </div>
+        `; // los campos de talles van a ir teniendo un id unico que de ahi donde saco info para saber donde agregar el siguiente campo, los nodos por asi decirlo
+		// ej: talle_0_0, talle_0_1, talle_1_0, talle_1_1, etc
+        var parentDiv = Nodo.parentNode;
+        parentDiv.insertBefore(newDiv, Nodo);
+        BotonesTalles.push(document.getElementById('boton_talle_'+CantidadColores));// obtengo el boton nuevo de talle que acabo de crear en la linea 58 y lo agrego a la lista de botones
+        ActivarBotones();// esto para que no me recargue la pagina cada boton nuevo que se agrega
+    });
+    function ActivarBotones() {
+        BotonesTalles.forEach(element => { // recorro mi lista de botones
+            element.addEventListener("click", function(event){ 
+                event.preventDefault();
+                var id = element.id.charAt(element.id.length - 1); // con charAt segun chatgpt, obtengo las ultimas 2 cifras o caracteres de una cadena, es decir si tengo boton_3, me devuelve el 3
+                Nodo = document.getElementById("input_talle_"+id+'_'+CantidadTalles[id]);// con esto obtengo el input directo que usare como nodo, ej: input_talle_3_N//
+                const NuevoTalle = document.createElement("input");
+                NuevoTalle.type = "text";
+                NuevoTalle.name = "colores["+id+"][]";
+                NuevoTalle.className  = "talle__ border py-1 px-1";
+                CantidadTalles[id] += 1;
+                NuevoTalle.placeholder = "Ingrese un talle_"+id+"_"+CantidadTalles[id];
+                NuevoTalle.id  = "input_talle_"+id+'_'+CantidadTalles[id];
+                var parentDiv2 = Nodo.parentNode;
+                parentDiv2.insertBefore(NuevoTalle, Nodo);// agregamos el nodo
+            });
+        });
+    }
+
+</script>
